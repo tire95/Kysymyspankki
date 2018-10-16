@@ -16,6 +16,7 @@ import spark.Spark;
 import spark.template.thymeleaf.ThymeleafTemplateEngine;
 import tikape.harjoitustyo2.database.Database;
 import tikape.harjoitustyo2.domain.Kysymys;
+import tikape.harjoitustyo2.domain.Vastaus;
 import tikape.harjoitystyo2.dao.KysymysDao;
 import tikape.harjoitystyo2.dao.VastausDao;
 
@@ -31,23 +32,42 @@ public class Main {
         KysymysDao kysymysDao = new KysymysDao(database);
         VastausDao vastausDao = new VastausDao(database);
 
-        Spark.get("/", (req, res) -> {
+        
+        Spark.get("/aloitussivu", (req, res) -> {
             HashMap map = new HashMap<>();
             map.put("kysymykset", kysymysDao.findAll());
 
             return new ModelAndView(map, "aloitussivu");
         }, new ThymeleafTemplateEngine());
 
+        
         Spark.post("/lisaaKysymys", (req, res) -> {
             String kurssinNimi = req.queryParams("kurssinNimi");
             String aihe = req.queryParams("aihe");
             String kysymysteksti = req.queryParams("kysymysteksti");
 
             kysymysDao.saveOrUpdate(new Kysymys(-1, kurssinNimi, aihe, kysymysteksti));
-            res.redirect("*");
+            res.redirect("/aloitussivu");
+            return "";
+        });
+        
+        
+        Spark.post("/lisaaVastaus", (req, res) -> {
+            Integer kysymysId = Integer.parseInt(req.queryParams("kysymysId"));
+            String vastausteksti = req.queryParams("vastausteksti");
+            boolean oikein;
+            if(req.queryParams("oikein") == null) {
+                oikein = false;
+            } else {
+                oikein = true;
+            }
+            
+            vastausDao.saveOrUpdate(new Vastaus(-1, kysymysId, vastausteksti, oikein));
+            res.redirect("/aloitussivu");
             return "";
         });
 
+        
         Spark.get("/kysymys/:id", (req, res) -> {
             HashMap map = new HashMap<>();
             Integer kysymysId = Integer.parseInt(req.params(":id"));
@@ -56,6 +76,26 @@ public class Main {
             map.put("kysymys", k);
             return new ModelAndView(map, "kysymys");
         }, new ThymeleafTemplateEngine());
+        
+        
+        Spark.post("/poistaKysymys", (req, res) -> {
+            Integer kysymysId = Integer.parseInt(req.queryParams("kysymysId"));
+            vastausDao.deleteForKysymys(kysymysId);
+            kysymysDao.delete(kysymysId);
+            res.redirect("/aloitussivu");
+            return "";
+        });
+        
+        
+        Spark.post("/poistaVastaus", (req, res) -> {
+            Integer vastausId = Integer.parseInt(req.queryParams("vastausId"));
+            vastausDao.delete(vastausId);
+            res.redirect("/aloitussivu");
+            return "";
+        });
+        
     }
+    
+    
 
 }

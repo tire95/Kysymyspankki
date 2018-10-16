@@ -28,7 +28,24 @@ public class VastausDao implements Dao<Vastaus, Integer>{
     
     @Override
     public Vastaus findOne(Integer key) throws SQLException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        Connection conn = database.getConnection();
+        PreparedStatement stmt = conn.prepareStatement("SELECT * FROM Vastaus WHERE id = ?");
+        stmt.setInt(1, key);
+
+        ResultSet rs = stmt.executeQuery();
+        boolean hasOne = rs.next();
+        if (!hasOne) {
+            return null;
+        }
+
+        Vastaus a = new Vastaus(rs.getInt("id"), rs.getInt("kysymys_id"), rs.getString("vastausTeksti"), rs.getBoolean("oikein"));
+  
+        stmt.close();
+        rs.close();
+
+        conn.close();
+
+        return a;
     }
 
     @Override
@@ -87,6 +104,15 @@ public class VastausDao implements Dao<Vastaus, Integer>{
         try (Connection conn = database.getConnection()) {
             
             PreparedStatement stmt = conn.prepareStatement("DELETE FROM Vastaus WHERE id = ?");
+            stmt.setInt(1, key);
+            stmt.executeUpdate();
+        }
+    }
+    
+    public void deleteForKysymys(Integer key) throws SQLException {
+        try (Connection conn = database.getConnection()) {
+            
+            PreparedStatement stmt = conn.prepareStatement("DELETE FROM Vastaus WHERE kysymys_id = ?");
             stmt.setInt(1, key);
             stmt.executeUpdate();
         }
