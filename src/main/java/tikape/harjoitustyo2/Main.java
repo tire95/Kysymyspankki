@@ -33,7 +33,7 @@ public class Main {
         VastausDao vastausDao = new VastausDao(database);
 
         
-        Spark.get("/aloitussivu", (req, res) -> {
+        Spark.get("/", (req, res) -> {
             HashMap map = new HashMap<>();
             map.put("kysymykset", kysymysDao.findAll());
 
@@ -47,7 +47,7 @@ public class Main {
             String kysymysteksti = req.queryParams("kysymysteksti");
 
             kysymysDao.saveOrUpdate(new Kysymys(-1, kurssinNimi, aihe, kysymysteksti));
-            res.redirect("/aloitussivu");
+            res.redirect("/");
             return "";
         });
         
@@ -63,7 +63,7 @@ public class Main {
             }
             
             vastausDao.saveOrUpdate(new Vastaus(-1, kysymysId, vastausteksti, oikein));
-            res.redirect("/aloitussivu");
+            res.redirect("/");
             return "";
         });
 
@@ -82,7 +82,7 @@ public class Main {
             Integer kysymysId = Integer.parseInt(req.queryParams("kysymysId"));
             vastausDao.deleteForKysymys(kysymysId);
             kysymysDao.delete(kysymysId);
-            res.redirect("/aloitussivu");
+            res.redirect("/");
             return "";
         });
         
@@ -90,7 +90,7 @@ public class Main {
         Spark.post("/poistaVastaus", (req, res) -> {
             Integer vastausId = Integer.parseInt(req.queryParams("vastausId"));
             vastausDao.delete(vastausId);
-            res.redirect("/aloitussivu");
+            res.redirect("/");
             return "";
         });
         
