@@ -22,6 +22,7 @@ import tikape.harjoitystyo2.dao.VastausDao;
 
 public class Main {
 
+
     public static void main(String[] args) throws Exception {
 
         if (System.getenv("PORT") != null) {
@@ -32,7 +33,6 @@ public class Main {
         KysymysDao kysymysDao = new KysymysDao(database);
         VastausDao vastausDao = new VastausDao(database);
 
-        
         Spark.get("/", (req, res) -> {
             HashMap map = new HashMap<>();
             map.put("kysymykset", kysymysDao.findAll());
@@ -40,7 +40,6 @@ public class Main {
             return new ModelAndView(map, "aloitussivu");
         }, new ThymeleafTemplateEngine());
 
-        
         Spark.post("/lisaaKysymys", (req, res) -> {
             String kurssinNimi = req.queryParams("kurssinNimi");
             String aihe = req.queryParams("aihe");
@@ -50,24 +49,22 @@ public class Main {
             res.redirect("/");
             return "";
         });
-        
-        
+
         Spark.post("/lisaaVastaus", (req, res) -> {
             Integer kysymysId = Integer.parseInt(req.queryParams("kysymysId"));
             String vastausteksti = req.queryParams("vastausteksti");
             boolean oikein;
-            if(req.queryParams("oikein") == null) {
+            if (req.queryParams("oikein") == null) {
                 oikein = false;
             } else {
                 oikein = true;
             }
-            
+
             vastausDao.saveOrUpdate(new Vastaus(-1, kysymysId, vastausteksti, oikein));
             res.redirect("/");
             return "";
         });
 
-        
         Spark.get("/kysymys/:id", (req, res) -> {
             HashMap map = new HashMap<>();
             Integer kysymysId = Integer.parseInt(req.params(":id"));
@@ -76,8 +73,7 @@ public class Main {
             map.put("kysymys", k);
             return new ModelAndView(map, "kysymys");
         }, new ThymeleafTemplateEngine());
-        
-        
+
         Spark.post("/poistaKysymys", (req, res) -> {
             Integer kysymysId = Integer.parseInt(req.queryParams("kysymysId"));
             vastausDao.deleteForKysymys(kysymysId);
@@ -85,17 +81,14 @@ public class Main {
             res.redirect("/");
             return "";
         });
-        
-        
+
         Spark.post("/poistaVastaus", (req, res) -> {
             Integer vastausId = Integer.parseInt(req.queryParams("vastausId"));
             vastausDao.delete(vastausId);
             res.redirect("/");
             return "";
         });
-        
+
     }
-    
-    
 
 }
