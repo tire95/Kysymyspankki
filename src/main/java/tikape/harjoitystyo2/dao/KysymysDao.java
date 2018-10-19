@@ -39,7 +39,7 @@ public class KysymysDao implements Dao<Kysymys, Integer> {
         }
 
         Kysymys a = new Kysymys(rs.getInt("id"), rs.getString("kurssi"), rs.getString("aihe"), rs.getString("kysymysteksti"));
-  
+
         stmt.close();
         rs.close();
 
@@ -65,8 +65,11 @@ public class KysymysDao implements Dao<Kysymys, Integer> {
 
     @Override
     public Kysymys saveOrUpdate(Kysymys object) throws SQLException {
+
+//        katsotaan, löytyykö kysymyspankista kysymystä, jolla on sama kysymysteksti
         Kysymys byTeksti = findByTeksti(object.getKysymysteksti());
 
+//        jos samalla kysymystekstillä löytyy kysymys, ei tallenneta uutta kysymystä
         if (byTeksti != null) {
             return byTeksti;
         }
@@ -82,9 +85,8 @@ public class KysymysDao implements Dao<Kysymys, Integer> {
         return findByTeksti(object.getKysymysteksti());
     }
 
-
-@Override
-        public void delete(Integer key) throws SQLException {
+    @Override
+    public void delete(Integer key) throws SQLException {
         try (Connection conn = database.getConnection()) {
 
             PreparedStatement stmt = conn.prepareStatement("DELETE FROM Kysymys WHERE id = ?");

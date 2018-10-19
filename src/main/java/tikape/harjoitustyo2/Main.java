@@ -9,7 +9,6 @@ package tikape.harjoitustyo2;
  *
  * @author tire
  */
-import java.sql.*;
 import java.util.HashMap;
 import spark.ModelAndView;
 import spark.Spark;
